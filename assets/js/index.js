@@ -11,6 +11,58 @@
 // *список хештегів,
 // можна використати додаткові властивості за бажанням.
 
+class RangeValidator {
+  constructor(from, to) {
+    if (typeof from !== "number" || typeof to !== "number") {
+      throw new TypeError('Value "from" or "to" are not must be a number');
+    }
+    if (from > to) {
+      throw new RangeError("From can not be lesser that to");
+    }
+    this.from = from;
+    this.to = to;
+  }
+
+  get from() {
+    return this._from;
+  }
+
+  set from(value) {
+    if (typeof value !== "number") {
+      throw new TypeError('Value "from" must be a number');
+    }
+    if (value > this._to) {
+      throw new RangeError("From cannot be greater than to");
+    }
+    this._from = value;
+  }
+
+  get to() {
+    return this._to;
+  }
+
+  set to(value) {
+    if (typeof value !== "number") {
+      throw new TypeError('Value "from" must be a number');
+    }
+    if (value < this._from) {
+      throw new RangeError("From cannot be greater than to");
+    }
+    this._to = value;
+  }
+
+  get range() {
+    return [this._from, this._to];
+  }
+
+  isValid(value) {
+    if (typeof value !== "number") {
+      throw new TypeError("Value must be a number");
+    }
+    return value >= this.from && value <= this.to;
+  }
+}
+
 class Post {
   constructor(
     id,
@@ -32,6 +84,7 @@ class Post {
     this.image = image;
     this.hashtag = hashtag;
     this.views = views;
+    this.likeValodator = new RangeValidator(0, 100);
   }
 
   // змінити текст поста на інший.
@@ -92,6 +145,20 @@ class Post {
 
   // *сеттер з валідацією для кількості вподобайок та відповідний ґеттер. *Для перевірки, чи належить кількість вподобайок певному діапазону, можна використати клас нижче.
 
+  get validLikeValue() {
+    return this._numbersOfLike;
+  }
+
+  set validLikeValue(value) {
+    if (this.likeValodator.isValid(value)) {
+      this._numbersOfLike = value;
+    } else {
+      throw new RangeError(
+        `Indalid value of likes:${value}. It must be betwee ${this.likeValodator.from} and ${this.likeValodator.to}`
+      );
+    }
+  }
+
   // *додавання хештеґу. Хештеґів у поста може бути максимум 6. Можливі значення обмежені певним переліком (наприклад, ['web', 'javascript', 'fullstack', 'education', тощо]).
 
   addHashtag(hash) {
@@ -141,27 +208,31 @@ const post = new Post(
   11
 );
 
-// try {
-//   post.addHashtag("frontend");
-//   // post.addHashtag(2323); Error
-//   // post.addHashtag("dfdgfadf"); Error
-//   post.render();
-//   post.changeText("new text is here");
-//   post.render();
-// } catch (err) {
-//   console.error("err :>> ", err);
-// }
+try {
+  post.addHashtag("frontend");
+} catch (err) {
+  console.error("err :>> ", err);
+}
 
-// Перевірка роботи методів
-// post.addLike();
-// post.addLike();
-// post.addLike();
-// post.render();
-// post.deleteLike();
-// post.render();
-// post.addView();
-// post.addView();
-// post.render();
+try {
+  post.changeText("new text is here");
+} catch (err) {
+  console.log(err);
+}
+
+try {
+  post.validLikeValue = 22;
+  console.log(post.validLikeValue);
+} catch (err) {
+  console.error(err);
+}
+
+try {
+  post.validLikeValue = -22;
+  console.log(post.validLikeValue);
+} catch (err) {
+  console.error(err);
+}
 
 // *Створити масив постів (достатньо 2-3), тобто елементами масиву будуть екземпляри класу. Відрендерити ці пости (перебравши масив).
 
@@ -202,3 +273,76 @@ const posts = [
 ];
 
 posts.forEach((post) => post.render());
+posts.forEach((post) => post.addLike());
+posts.forEach((post) => post.addLike());
+posts.forEach((post) => post.render());
+posts.forEach((post) => post.deleteLike());
+posts.forEach((post) => post.render());
+
+// 2. *Реалізувати клас RangeValidator.
+// Клас призначений для валідації потрапляння числового значення в діапазон (тобто якщо діапазон {from: 0, to: Infinity}, то невід'ємні числа потрапляють в діапазон, а від'ємні - ні).
+
+// Границі діапазону є властивостями:
+// ■ from (типу number);
+// ■ to (типу number);
+// (from <= to)
+
+const range1 = new RangeValidator(1, 5.5);
+
+try {
+  range1.from = 5;
+  console.log(range1.from);
+} catch (err) {
+  console.error(err);
+}
+
+try {
+  range1.from = 200;
+  console.log(range1.from);
+} catch (err) {
+  console.error(err);
+}
+
+try {
+  range1.to = 80;
+  console.log(range1.to);
+} catch (err) {
+  console.error(err);
+}
+
+try {
+  range1.to = -55;
+  console.log(range1.to);
+} catch (err) {
+  console.error(err);
+}
+
+try {
+  console.log(range1.from);
+} catch (err) {
+  console.error(err);
+}
+
+try {
+  console.log(range1.to);
+} catch (err) {
+  console.error(err);
+}
+
+try {
+  console.log(range1.range);
+} catch (err) {
+  console.error(err);
+}
+
+try {
+  console.log(range1.isValid(10));
+} catch (err) {
+  console.error(err);
+}
+
+try {
+  console.log(range1.isValid(100));
+} catch (err) {
+  console.error(err);
+}
