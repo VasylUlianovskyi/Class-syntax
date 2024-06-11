@@ -13,12 +13,6 @@
 
 class RangeValidator {
   constructor(from, to) {
-    if (typeof from !== "number" || typeof to !== "number") {
-      throw new TypeError('Value "from" or "to" are not must be a number');
-    }
-    if (from > to) {
-      throw new RangeError("From can not be lesser that to");
-    }
     this.from = from;
     this.to = to;
   }
@@ -174,7 +168,7 @@ class Post {
     if (
       this.hashtag.length < 6 &&
       validHashtag.includes(hash) &&
-      validHashtag !== "string"
+      validHashtag === "string"
     ) {
       this.hashtag.push(hash);
     } else {
