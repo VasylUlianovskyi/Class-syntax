@@ -168,7 +168,7 @@ class Post {
     if (
       this.hashtag.length < 6 &&
       validHashtag.includes(hash) &&
-      validHashtag === "string"
+      typeof hash === "string"
     ) {
       this.hashtag.push(hash);
     } else {
